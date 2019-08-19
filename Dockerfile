@@ -55,14 +55,13 @@ RUN cd && git clone https://github.com/potree/PotreeConverter.git  && \
 
 # Installs PotreeConverter to /usr/local/bin/
 
-RUN mkdir -p /data/input && \
-    mkdir /data/converted
+# For some reason PotreeConverter looks for the resources directory in / ?  ¯\_(ツ)_/¯
+RUN cp -a /root/PotreeConverter/PotreeConverter/resources /resources
 
-# Copy resources to binary working directories[4]
-RUN cd && \
-    ln -s ./PotreeConverter/PotreeConverter/resources   /usr/local/bin && \
-    ln -s ./PotreeConverter/PotreeConverter/resources   ./PotreeConverter/Release/PotreeConverter && \
-    ln -s ./PotreeConverter/PotreeConverter/resources   /data
+# Mount points for input/output.  Start in /data
+WORKDIR /data
+RUN mkdir input && \
+    mkdir converted
 
 # Test PotreeConverter, starting from previous command
 COPY test.sh  /root/PotreeConverter/Release
@@ -72,5 +71,4 @@ RUN  chmod +x /root/PotreeConverter/Release/test.sh
 # [1] readelf -d /root/PotreeConverter/Release/PotreeConverter/PotreeConverter | head -20
 # [2] readelf -d /usr/local/bin/PotreeConverter | head -20
 # [3] See https://en.wikipedia.org/wiki/Rpath  ,  https://stackoverflow.com/a/30455909/1502174
-# [4] Not sure if this means where the executable lives or $PWD when we're running PotreeConverter
 
